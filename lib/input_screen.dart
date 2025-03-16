@@ -101,11 +101,7 @@ class _HomePageState extends State<HomePage> {
       }
       showTable = true;
     });
-    // for (var controllers in inputController.values) {
-    //   for (var controller in controllers) {
-    //     controller.clear();
-    //   }
-    // };
+  
   }
 
   @override
@@ -172,7 +168,6 @@ class _HomePageState extends State<HomePage> {
                                     DataCell(Text(state.toString())),
                                     for (var i = 0; i < alphabets.length; i++)
                                       DataCell(SizedBox(
-                                        // width: 70,
                                         height: 40,
                                         child: TextField(
                                           controller:

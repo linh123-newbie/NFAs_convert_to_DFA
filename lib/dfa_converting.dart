@@ -19,7 +19,7 @@ class NFAs {
         }
       }
     }
-    return closureList.toSet().toList(); // Loại bỏ trùng lặp
+    return closureList.toSet().toList(); // Remove duplicate items
   }
 
   List<int> convertState(List<int> closureList, String alphabet) {
@@ -31,76 +31,66 @@ class NFAs {
         }
       }
     }
-    return convertingStateList.toSet().toList(); // Loại bỏ trùng lặp
+    return convertingStateList.toSet().toList(); // Remove duplicate items
   }
 
-  // Map<int, Map<String, int>> buildStateDFA() {
   Map<String, dynamic> buildStateDFA() {
+
     Map<int, List<int>> dfaStates = {};
     Map<int, Map<String, int>> dfaResult = {};
-    int count = 0;
-    List<int> closureNFA = [];
+    int count = 0; // State symbol of DFA
+    List<int> closureNFAs = [];
     List<int> savedState = [];
     Set<int> endStateDFA = {};
 
-    closureNFA = getClosure([startState]);
-    if (closureNFA.isNotEmpty) {
-      dfaStates[count] = closureNFA;
+    // Get closure of start_state
+    closureNFAs = getClosure([startState]);
+    if (closureNFAs.isNotEmpty) {
+      dfaStates[count] = closureNFAs;
       savedState.add(count);
       count++;
-    }
-    // print("State: ${dfaStates.keys}");
-    // print("Alphabet: $alphabet");
-    // print("Transition: $dfaResult");
-    // print("Start state: ${dfaStates.keys.first}");
-    // print("End state: $endStateDFA");
-
-    
-
+    };
+    // savedState is used for stack, if one state of DFA in savedState that is used for all alphabets
+    // => remove this state
     while (savedState.isNotEmpty) {
       int i = savedState.removeLast();
       for (var al in alphabet) {
         List<int> convertStateList = convertState(dfaStates[i]!, al);
-        List<int> closureNFA = getClosure(convertStateList);
-        // print(convertStateList);
-        //List in dart compare reference type, not value
-        if (!dfaStates.values.any((state) =>
-            Set<int>.from(state).containsAll(closureNFA) &&
-            Set<int>.from(closureNFA).containsAll(state))) {
-          // print(dfaStates.values);
-          dfaStates[count] = closureNFA;
-          savedState.add(count);
-          count++;
-        }
-        for (var key in dfaStates.keys) {
-          if (Set<int>.from(dfaStates[key]!).containsAll(closureNFA)) {
-            dfaResult.putIfAbsent(i,() =>{}); //Add new value if value is not exits, Type of dfaResult[i] is Map<String, int>, if i is not in dfaResult, i is assigned an empty class
-            dfaResult[i]![al] = key; //Add a transition from i to key when reading al
+        if (convertStateList.isNotEmpty) {
+          List<int> closureNFA = getClosure(convertStateList);
+
+          // Dart doesn compare 2 list, must use map
+          if (!dfaStates.values.any((state) =>
+              Set<int>.from(state).containsAll(closureNFA) &&
+              Set<int>.from(closureNFA).containsAll(state))) {
+            // if states of dfa do not contain closureNFAs => add them into dfaStates and savedSate
+            dfaStates[count] = closureNFA;
+            savedState.add(count);
+            count++;
           }
-          for (var j in endState) {
-            print(j);
-            if (dfaStates[key]!.contains(j)) { // ! null-assertion operator
-              endStateDFA.add(key);
+          for (var key in dfaStates.keys) {
+            if (Set<int>.from(dfaStates[key]!).containsAll(closureNFA)) {
+              dfaResult.putIfAbsent(
+                  i,
+                  () =>
+                      {}); //Add new value if value is not exits,
+                      // Type of dfaResult[i] is Map<String, int>, if i is not in dfaResult,
+                      // i is assigned an empty class
+              dfaResult[i]![al] =
+                  key; //Add a transition from i to key when reading al
+            }
+            for (var j in endState) {
+              // print(j);
+              if (dfaStates[key]!.contains(j)) {
+                // ! null-assertion operator
+                endStateDFA.add(key);
+              }
             }
           }
         }
       }
     }
-    print(dfaResult);
-    dfaResult.forEach((key, value) {
-    print("For key $key:");
-    value.forEach((innerKey, innerValue) {
-      if(innerKey=='b'){
-
-        print("$innerKey: $innerValue"); 
-      }
-    });
-  });
-    print(dfaResult.runtimeType);
-    // print(endStateDFA);
-    // print(alphabet);
-    // print(dfaStates.keys);
-    return{
+    return {
       "State": dfaStates.keys,
       "Alphabet": alphabet,
       "start_state": dfaStates.keys.first,
@@ -111,55 +101,23 @@ class NFAs {
 }
 
 // void main() {
-//   Set<int> states = {0, 1,};
-//   Set<String> alphabet = {'a', 'b', "c"};
+//   Set<int> states = {0, 1, 2};
+//   Set<String> alphabet = {'a', 'b', 'c'};
 //   Map<int, Map<String, Set<int>>> transition = {
 //     0: {
-//       's': {0, 1},
-//       'a': {1},
-//       'b': {1},
-//       'c': {0}
+//       's': {0, 1, 2},
+//       'a': {0},
 //     },
 //     1: {
-//       's': {0,1},
-//       'a': {1},
-//       'b': {0},
-//       'c': {1}
+//       's': {1, 2},
+//       'b': {1},
 //     },
-//     // 2: {
-//     //   's': {2},
-//     //   'a': {3}
-//     // },
-//     // 3: {
-//     //   's': {3, 6, 1, 2, 4, 7}
-//     // },
-//     // 4: {
-//     //   's': {4},
-//     //   'b': {5}
-//     // },
-//     // 5: {
-//     //   's': {5, 6, 7, 1, 2, 4}
-//     // },
-//     // 6: {
-//     //   's': {6, 7, 1, 2, 4}
-//     // },
-//     // 7: {
-//     //   's': {7},
-//     //   'a': {8}
-//     // },
-//     // 8: {
-//     //   's': {8},
-//     //   'b': {9}
-//     // },
-//     // 9: {
-//     //   's': {9},
-//     //   'b': {10}
-//     // },
-//     // 10: {
-//     //   's': {10}
-//     // },
+//     2: {
+//       's': {2},
+//       'c': {2}
+//     },
 //   };
 
-//   NFAs nfas = NFAs(states, alphabet, transition, 0, {1});
+//   NFAs nfas = NFAs(states, alphabet, transition, 0, {2});
 //   nfas.buildStateDFA();
 // }

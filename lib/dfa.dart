@@ -33,6 +33,7 @@ class _DFAConverterPageState extends State<DFAConverterPage> {
       convert();
     });
   }
+  
   void convert() {
     Set<int> states = widget.states;
     Set<String> alphabet = widget.alphabet;
@@ -55,7 +56,7 @@ class _DFAConverterPageState extends State<DFAConverterPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("NFA to DFA Converter", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),),
+        title: Text("NFAε to DFA Converter", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),),
         backgroundColor: Colors.blue.shade500,
         centerTitle: true,
       ),
@@ -105,7 +106,7 @@ class _DFAConverterPageState extends State<DFAConverterPage> {
                           DataCell(Text(state)),
                           ...widget.alphabet.map((symbol) {
                             return DataCell(
-                                Text(transitions[symbol]?.toString() ?? ""));
+                                Text(transitions[symbol]?.toString() ?? "null"));
                           })
                         ]);
                       }).toList(),
