@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'dfa_converting.dart';
+import 'test1.dart';
 
 class DFAConverterPage extends StatefulWidget {
   Set<int> states;
@@ -26,21 +26,22 @@ class _DFAConverterPageState extends State<DFAConverterPage> {
   String end_state = "";
   Map<int, Map<String, int>> transition_state = {};
   List<String> columnHeaders = [];
+  Map<int, Set<int>> convert_state = {};
   @override
-  void initState(){
+  void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_){
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       convert();
     });
   }
-  
+
   void convert() {
     Set<int> states = widget.states;
     Set<String> alphabet = widget.alphabet;
     Map<int, Map<String, Set<int>>> transition = widget.transition;
 
-    NFAs nfas = NFAs(states, alphabet, transition, widget.startState, widget.endState);
-    Map<String, dynamic> dfa = nfas.buildStateDFA();
+    NFAe nfas = NFAe(states, alphabet, transition, widget.startState, widget.endState);
+    Map<String, dynamic> dfa = nfas.buildDFA();
 
     setState(() {
       columnHeaders = ["State"] + widget.alphabet.toList();
@@ -49,6 +50,7 @@ class _DFAConverterPageState extends State<DFAConverterPage> {
       alphabetString = dfa["Alphabet"].join(", ");
       state = dfa["State"].join(", ");
       transition_state = dfa["transition"];
+      convert_state = dfa["convert_state"];
     });
   }
 
@@ -56,7 +58,10 @@ class _DFAConverterPageState extends State<DFAConverterPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("NFAε to DFA Converter", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),),
+        title: Text(
+          "NFAε to DFA Converter",
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
         backgroundColor: Colors.blue.shade500,
         centerTitle: true,
       ),
@@ -93,6 +98,18 @@ class _DFAConverterPageState extends State<DFAConverterPage> {
                   Text("Alphabet: $alphabetString",
                       style: const TextStyle(fontSize: 16)),
                   Text("State: $state", style: const TextStyle(fontSize: 16)),
+
+                  SizedBox(
+                    // padding: EdgeInsets.symmetric(vertical: 5, horizontal: 20),
+                    child: Builder(builder: (context) {
+                      String stateSymbol = '';
+                      convert_state.forEach((key, value) {
+                        stateSymbol += "$key -> $value\n";
+                      });
+                      return Text("State symbol:\n$stateSymbol",
+                          style: const TextStyle(fontSize: 16));
+                    }),
+                  ),
                   if (columnHeaders.isNotEmpty)
                     DataTable(
                       columns: columnHeaders
@@ -105,8 +122,8 @@ class _DFAConverterPageState extends State<DFAConverterPage> {
                         return DataRow(cells: [
                           DataCell(Text(state)),
                           ...widget.alphabet.map((symbol) {
-                            return DataCell(
-                                Text(transitions[symbol]?.toString() ?? "null"));
+                            return DataCell(Text(
+                                transitions[symbol]?.toString() ?? "null"));
                           })
                         ]);
                       }).toList(),
