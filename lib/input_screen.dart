@@ -14,11 +14,12 @@ class _HomePageState extends State<HomePage> {
   TextEditingController startState = TextEditingController();
   TextEditingController endState = TextEditingController();
   Set<int> states = {};
-  List<String> existed_alphabet = ['s', 'a', 'b', 'c', 'd', 'e'];
+  List<String> existed_alphabet = ['s', 'a', 'b', 'c', 'd', 'e', 'f', 'g'];
   Set<String> alphabets = {};
   List<String> header = [];
   List<int> stateList = [];
   final Map<int, Map<String, Set<int>>> transition = {};
+  //Each state has list input
   final Map<int, List<TextEditingController>> inputController = {};
   bool showTable = false;
   // Set<int> states = {};
@@ -63,17 +64,16 @@ class _HomePageState extends State<HomePage> {
       Navigator.push(
           context,
           MaterialPageRoute(
-            
-              builder: (context) => DFAConverterPage(
-                  alphabet: alphabets.skip(1).toSet(),
-                  states: states,
-                  transition: transition,
-                  startState: int.tryParse(startState.text) ?? 0,
-                  endState: endState.text
-                      .split(",")
-                      .map((el) => int.tryParse(el.trim()) ?? -1)
-                      .toSet()),
-                      ));
+            builder: (context) => DFAConverterPage(
+                alphabet: alphabets.skip(1).toSet(),
+                states: states,
+                transition: transition,
+                startState: int.tryParse(startState.text) ?? 0,
+                endState: endState.text
+                    .split(",")
+                    .map((el) => int.tryParse(el.trim()) ?? -1)
+                    .toSet()),
+          ));
     });
   }
 
@@ -94,14 +94,13 @@ class _HomePageState extends State<HomePage> {
       }
       header = ["State"] + alphabets.toList();
       stateList = states.toList();
-
+      //Each state has number of inputs depends on number of alphabets
       for (var state in states) {
         inputController[state] =
             List.generate(alphabets.length, (index) => TextEditingController());
       }
       showTable = true;
     });
-  
   }
 
   @override
@@ -151,40 +150,44 @@ class _HomePageState extends State<HomePage> {
                       updateState();
                     },
                     child: Text("Get Input")),
-                // Text("States: ${states.toString()}"),
-                // Text("Alphabet: ${alphabets.toString()}"),
                 if (showTable) ...[
                   SizedBox(
                     width: double.infinity,
                     child: SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
                       child: DataTable(
-                          columns: header
-                              .map((headerMap) =>
-                                  DataColumn(label: Text(headerMap)))
-                              .toList(),
-                          rows: states
-                              .map((state) => DataRow(cells: [
-                                    DataCell(Text(state.toString())),
-                                    for (var i = 0; i < alphabets.length; i++)
-                                      DataCell(SizedBox(
+                        columns: header
+                            .map((headerMap) =>
+                                DataColumn(label: Text(headerMap)))
+                            .toList(),
+                        rows: states
+                            .map(
+                              (state) => DataRow(
+                                cells: [
+                                  DataCell(
+                                    Text(
+                                      state.toString(),
+                                    ),
+                                  ),
+                                  for (var i = 0; i < alphabets.length; i++)
+                                    DataCell(
+                                      SizedBox(
                                         height: 40,
                                         child: TextField(
-                                          controller:
-                                              (inputController[state]?.length ??
-                                                          0) >
-                                                      1
-                                                  ? inputController[state]![i]
-                                                  : TextEditingController(),
+                                          controller: inputController[state]![i],
                                           decoration: InputDecoration(
                                               border: OutlineInputBorder(),
                                               fillColor: Colors.white,
                                               filled: true),
                                           textAlign: TextAlign.center,
                                         ),
-                                      )),
-                                  ]))
-                              .toList()),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            )
+                            .toList(),
+                      ),
                     ),
                   ),
                   SizedBox(
@@ -195,7 +198,6 @@ class _HomePageState extends State<HomePage> {
                         savedData();
                       },
                       child: Text("Convert NFAs to DFA")),
-                  // Text("${transition.toString()}")
                 ]
               ],
             ),

@@ -36,11 +36,9 @@ class _DFAConverterPageState extends State<DFAConverterPage> {
   }
 
   void convert() {
-    Set<int> states = widget.states;
-    Set<String> alphabet = widget.alphabet;
-    Map<int, Map<String, Set<int>>> transition = widget.transition;
-
-    NFAe nfas = NFAe(states, alphabet, transition, widget.startState, widget.endState);
+  
+    NFAe nfas =
+        NFAe(widget.states, widget.alphabet, widget.transition, widget.startState, widget.endState);
     Map<String, dynamic> dfa = nfas.buildDFA();
 
     setState(() {
@@ -66,29 +64,17 @@ class _DFAConverterPageState extends State<DFAConverterPage> {
         centerTitle: true,
       ),
       body: Center(
-        // padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
             SizedBox(
               height: 20,
             ),
-            // const Text(
-            //   "Convert NFA to DFA",
-            //   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            // ),
             const SizedBox(height: 20),
-            // ElevatedButton(
-            //   onPressed: convert,
-            //   child: const Text("Convert NFA to DFA"),
-            // ),
             const SizedBox(height: 20),
             Expanded(
               child: SingleChildScrollView(
                   child: Column(
                 children: [
-                  // Text("Alphabet ${widget.alphabet}"),
-                  // Text("State ${widget.states.toString()}"),
-                  // Text("transition ${widget.transition.toString()}"),
                   Text(
                     "Start state: $start_state",
                     style: const TextStyle(fontSize: 16),
@@ -98,17 +84,10 @@ class _DFAConverterPageState extends State<DFAConverterPage> {
                   Text("Alphabet: $alphabetString",
                       style: const TextStyle(fontSize: 16)),
                   Text("State: $state", style: const TextStyle(fontSize: 16)),
-
                   SizedBox(
-                    // padding: EdgeInsets.symmetric(vertical: 5, horizontal: 20),
-                    child: Builder(builder: (context) {
-                      String stateSymbol = '';
-                      convert_state.forEach((key, value) {
-                        stateSymbol += "$key -> $value\n";
-                      });
-                      return Text("State symbol:\n$stateSymbol",
-                          style: const TextStyle(fontSize: 16));
-                    }),
+                    child: Text(
+                      convert_state.entries.map((entry)=>'${entry.key} -> ${entry.value}').join('\n')
+                    ),
                   ),
                   if (columnHeaders.isNotEmpty)
                     DataTable(
@@ -121,10 +100,10 @@ class _DFAConverterPageState extends State<DFAConverterPage> {
 
                         return DataRow(cells: [
                           DataCell(Text(state)),
-                          ...widget.alphabet.map((symbol) {
-                            return DataCell(Text(
-                                transitions[symbol]?.toString() ?? "null"));
-                          })
+                          for (var cell in widget.alphabet)
+                              DataCell(
+                                  Text(transitions[cell]?.toString() ?? "null"))
+
                         ]);
                       }).toList(),
                     )

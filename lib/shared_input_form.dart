@@ -12,7 +12,7 @@ class _InputFormState extends State<InputForm>{
   
   @override
   Widget build(BuildContext context){
-    return Container(
+    return SizedBox(
       width: MediaQuery.sizeOf(context).width*0.7,
       // height: 70,
       child: TextField(
